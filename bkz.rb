@@ -7,7 +7,7 @@ require './goodreads.rb'
 opts = Trollop::options do
   opt :title, "Title of book ", :type => :string
   opt :source, "Source of book recommendation", :type => :string
-  opt :citations, "Fource citation count", :type => :integer
+  opt :citations, "Force citation count", :type => :integer
   opt :tags, "Tags for the book, e.g. a topic", :type => :string
   opt :print, "Print the database."
 end
@@ -111,15 +111,12 @@ def add(title, citations_opt, db)
   else
     citations = citations_opt
   end
-  db[:books].insert(:title => title,
-               :citations => citations, 
-               :published => goodreads_data[:published],
-               :avg_rating => goodreads_data[:avg_rating], 
-               :ratings_count => goodreads_data[:ratings_count])
-  db[:authors].insert(:title => title, :author => goodreads_data[:author])
-
- # db[:recommendations].insert(:title => title, :recommendation => source)
- # db[:tags].insert(:title => title, :tag => tag)
+  db[:data].insert(:Title => title,
+               :Citations => citations, 
+               :Published => goodreads_data[:published],
+               :"Goodreads Rating" => goodreads_data[:avg_rating], 
+               :"Goodreads Reviews" => goodreads_data[:ratings_count])
+  # db[:authors].insert(:title => title, :author => goodreads_data[:author])
 end
 
 def ratings_to_score(avg, count)
