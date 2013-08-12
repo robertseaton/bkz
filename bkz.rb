@@ -114,8 +114,8 @@ def add(title, citations_opt, db)
   db[:data].insert(:Title => title,
                :Citations => citations, 
                :Published => goodreads_data[:published],
-               :"Goodreads Rating" => goodreads_data[:avg_rating], 
-               :"Goodreads Reviews" => goodreads_data[:ratings_count])
+               :Goodreads_Rating => goodreads_data[:avg_rating], 
+               :Goodreads_Reviews => goodreads_data[:ratings_count])
   # db[:authors].insert(:title => title, :author => goodreads_data[:author])
 end
 
