@@ -12,7 +12,7 @@
 
 To install:
 ```bash
-> gem install sequel trollop CSV
+$ gem install sequel trollop CSV
 ```
 
 ## R libraries
