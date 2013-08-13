@@ -14,7 +14,7 @@ library("sqldf")
 
 system("sh db_to_csv.sh")
 mydata = read.csv("out.csv")
-books.lm <- lm(Rating ~ (Goodreads_Rating * Goodreads_Reviews + Amazon_Rating * Amazon_Reviews) * Citations, data=mydata)
+books.lm <- lm(Rating ~ (Goodreads_Rating * Goodreads_Reviews + Amazon_Rating * Amazon_Reviews) * Citations * Published, data=mydata)
 
 # I can significantly improve the fit of the model by changing it to:
 # Rating ~ Goodreads.Rating * Goodreads.Reviews * Amazon.Rating * Amazon.Reviews * Citations
@@ -37,6 +37,7 @@ db <- dbConnect(SQLite(), dbname="books.db")
 books_db <- dbReadTable(db, "data")
 books_db$Prediction <- predictions
 
-# Replace new table with predicted values.
+# Replace old table with new table with predicted values. This would be prettier if it didn't destroy
+# the entire table each time.
 sqldf("DROP TABLE data",      stringsAsFactors=FALSE,      dbname="books.db")
 sqldf("create table data as select * from books_db",      stringsAsFactors=FALSE,      dbname="books.db")
