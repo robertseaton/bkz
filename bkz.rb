@@ -3,6 +3,7 @@ require 'sequel'
 require 'trollop'
 require 'CSV'
 require './goodreads.rb'
+require './amazon.rb'
 
 opts = Trollop::options do
   opt :title, "Title of book ", :type => :string
@@ -103,8 +104,32 @@ def getcitations(title)
   return citations
 end
 
+def update_dates(db)
+  db[:data].all { |record|
+    p record[:Title]
+    if record[:Title] == "Value Focused Thinking: A Path to Creative Decision Making" ||
+        record[:Title] == "Human inference: Strategies and shortcomings of social judgment" ||
+        record[:Title] == "Japaneses Death Poems" ||
+        record[:Title] == "Heuristics and Biases: The Psychology of Human Judgment" ||
+        record[:Title] == "Wherever You Go That's Where You Are" ||
+        record[:Title] == "Straight choices: the psychology of judgment and decision" ||
+        record[:Title] == "The Enjoyment of Math"
+      next
+    end
+    goodreads_data = goodreads_search(record[:Title])
+    p goodreads_data[:published]
+    db[:data].where(:Title => record[:Title]).update(:Published => goodreads_data[:published])
+    p record
+    if not (record[:Goodreads_Rating].to_f == goodreads_data[:avg_rating].to_f && record[:Goodreads_Reviews].to_f == goodreads_data[:ratings_count].to_f)
+      print "Error in #{record[:Title]}.\n"
+      print "Expected rating #{record[:Goodreads_Rating]}, got #{goodreads_data[:avg_rating]}.\n"
+      print "Expected review count #{record[:Goodreads_Reviews]}, got #{goodreads_data[:ratings_count]}.\n\n"
+    end }
+end
+
 def add(title, citations_opt, db)
   goodreads_data = goodreads_search(title)
+  amazon_data = amazon_search(title)
 
   if citations_opt.nil?
     citations = getcitations(title)
@@ -112,10 +137,12 @@ def add(title, citations_opt, db)
     citations = citations_opt
   end
   db[:data].insert(:Title => title,
-               :Citations => citations, 
-               :Published => goodreads_data[:published],
-               :Goodreads_Rating => goodreads_data[:avg_rating], 
-               :Goodreads_Reviews => goodreads_data[:ratings_count])
+                   :Citations => citations, 
+                   :Published => goodreads_data[:published],
+                   :Goodreads_Rating => goodreads_data[:avg_rating], 
+                   :Goodreads_Reviews => goodreads_data[:ratings_count],
+                   :Amazon_Rating => amazon_data[:avg_rating],
+                   :Amazon_Reviews => amazon_data[:ratings_count])
   # db[:authors].insert(:title => title, :author => goodreads_data[:author])
 end
 
@@ -131,26 +158,10 @@ def get_score(citations, avg_rating, ratings_count)
   return ratings_to_score(avg_rating, ratings_count) + citations_to_score(citations)
 end
 
-def print_books(db)
-  output = []
-  db[:books].each do |row|
-    entry = []
-    score = get_score(row[:citations], row[:avg_rating], row[:ratings_count])
-    entry = {:title => row[:title], :score => score}
-    output << entry
-  end
-  output = output.sort_by { |entry| entry[:score] }.reverse
-  output.each do |entry|
-    printf "%-100s %s\n", entry[:title], entry[:score]
-  end
-end
-
 setauth('aPfKh3cgbelfhnkDgQLQ')
 
 # create databse in memory
 db = initdb("books.db")
-
-books = db[:books]
 
 p opts
 
@@ -158,7 +169,6 @@ p opts
 if not opts[:print] then
   add(opts[:title], opts[:citations], db)
 else
-  print_books(db)
 end
 
 # todo:
