@@ -35,9 +35,9 @@ $ ruby bkz.rb --title "Information Theory, Inference, and Learning Algorithm"
 Is this the title of your book: Information theory, inference and learning algorithms? [y/n]
 y
 $ Rscript bkz.R 
-NULL
-NULL
 ...
+NULL
+NULL
 ```
 
 # Components
