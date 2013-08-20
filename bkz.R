@@ -28,8 +28,10 @@ vdata$Topic <- NULL
 # This convert the Rating from int type to factor.
 vdata$Rating <- as.factor(vdata$Rating)
 
+# On how this works: http://joshwalters.github.io/2012/11/27/naive-bayes-classification-in-r.html
 model = train(vdata,vdata$Rating,'nb',trControl=trainControl(method='cv',number=3))
 predictions <- predict(model$finalModel,vdata)$class
+
 # Insert the new predictions into the database.
 db <- dbConnect(SQLite(), dbname="books.db")
 books_db <- dbReadTable(db, "data")
