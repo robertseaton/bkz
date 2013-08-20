@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'sequel'
 require 'trollop'
-require 'CSV'
+require 'csv'
 require './goodreads.rb'
 require './amazon.rb'
 
@@ -92,7 +92,7 @@ def error(str)
 end
 
 def getcitations(title)
-  scholar_results = CSV.parse(`python scholar.py --csv -c 1 "\"#{title}\""`, :col_sep => "|")
+  scholar_results = CSV::parse(`python2 scholar.py --csv -c 1 "\"#{title}\""`, :col_sep => "|")
  
   if scholar_results[0][0].downcase.include?("cite") then
     error("scholar.py failed to parse citations for this entry. Please retry with a forced citation number via --citations. ")
