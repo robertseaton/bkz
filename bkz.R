@@ -1,6 +1,8 @@
 #!/usr/bin/env Rscript
 
 library("sqldf")
+library("klaR")
+library("caret")
 
 # FIXME
 #
@@ -12,23 +14,22 @@ library("sqldf")
 
 system("sh db_to_csv.sh")
 mydata = read.csv("out.csv")
-books.lm <- lm(Rating ~ (Goodreads_Rating * Goodreads_Reviews + Amazon_Rating * Amazon_Reviews) * Citations * Published, data=mydata)
 
-# I can significantly improve the fit of the model by changing it to:
-# Rating ~ Goodreads.Rating * Goodreads.Reviews * Amazon.Rating * Amazon.Reviews * Citations * Published
-#
-# The difference between this model and the current model is that this expects an interaction between Goodreads
-# data and Amazon data, hence the asterisk. Given that there is no theoretical explanation for such a relationship as far as I can see, I
-# believe such a model would be overfitting.
-#
-# FURTHER, on inspecting the output predictions of both models, the output of the first strikes me as more plausible than that of the second.
-#
-# Possible interaction: might Goodreads appeal to a different base of users such that differences in Amazon and Goodread's data give non-zero
-# information about the quality of a book? I think this is likely, but not enough to double the predictive power of the models, which is what
-# the ANOVA output suggests. 
+vdata <- mydata
 
-predictions <- predict(books.lm, mydata)
+# Remove columns not used in naive bayes'.
+vdata$X__Recommendations <- NULL
+vdata$Citations <- NULL
+vdata$Pages <- NULL
+vdata$Subjective_Rating <- NULL
+vdata$Prediction <- NULL
+vdata$Topic <- NULL
 
+# This convert the Rating from int type to factor.
+vdata$Rating <- as.factor(vdata$Rating)
+
+model = train(vdata,vdata$Rating,'nb',trControl=trainControl(method='cv',number=3))
+predictions <- predict(model$finalModel,vdata)$class
 # Insert the new predictions into the database.
 db <- dbConnect(SQLite(), dbname="books.db")
 books_db <- dbReadTable(db, "data")
