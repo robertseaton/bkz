@@ -5,7 +5,7 @@ Install R, Ruby, SQLite, and Python from the repository:
 $ pacman -S r ruby sqlite python
 ```
 
-On debian based distributions, you will need the dev pacakges, too. (e.g. ruby-dev)
+On debian based distributions, you will need the dev packages, too. (e.g. ruby-dev)
 
 Install Ruby libraries:
 ```bash
