@@ -2,8 +2,6 @@ require 'nokogiri'
 require 'open-uri'
 require 'net/http'
 
-# http://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Dstripbooks&field-keywords=mathematics+and+its+history
-
 def geturl(title)
   return "http://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Dstripbooks&field-keywords=#{URI.encode(title)}"
 end
@@ -41,7 +39,3 @@ end
 
 def getrating(url)
 end
-
-# <div id="result_0"
-# <a class="title"
-# h3 class="newaps"
