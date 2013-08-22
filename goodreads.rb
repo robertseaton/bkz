@@ -31,6 +31,13 @@ def goodreads_search(title)
     :ratings_count => xml.css("ratings_count").first.children.to_s.to_i,
     :published => xml.css("original_publication_year").first.children.to_s.to_i
   }
+
+rescue
+  puts "Warning: Goodreads data missing."
+  book_info = {
+    :avg_rating => 0,
+    :ratings_count => 0,
+  }
   # correct_book?(book_info[:title], book_info[:author])
 end
 
