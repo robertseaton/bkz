@@ -32,10 +32,20 @@ vdata$Rating <- as.factor(vdata$Rating)
 model = train(vdata,vdata$Rating,'nb',trControl=trainControl(method='cv',number=3))
 predictions <- predict(model$finalModel,vdata)$class
 
+# Naive Bayes' returns a matrix of the confidence value for its predicted value and
+# for all other classes. For example, it might predict 5 with 90 percent probability,
+# and 4 with 5 percent probability, etc.
+#
+# This code grabs the max of each row of the matrix, which is the same as the confidence
+# of the predicted vale.
+confidences <- apply(predict(model$finalModel,vdata)$posterior, 1, max)
+
+
 # Insert the new predictions into the database.
 db <- dbConnect(SQLite(), dbname="books.db")
 books_db <- dbReadTable(db, "data")
 books_db$Prediction <- predictions
+books_db$Confidence <- confidences
 
 # Replace old table with new table with predicted values. This would be prettier if it didn't destroy
 # the entire table each time.
