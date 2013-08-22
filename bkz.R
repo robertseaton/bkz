@@ -17,22 +17,23 @@ mydata = read.csv("out.csv")
 
 vdata <- mydata
 
-# Remove columns not used in naive bayes'.
+# Remove unused columns.
 vdata$X__Recommendations <- NULL
 vdata$Citations <- NULL
 vdata$Pages <- NULL
 vdata$Subjective_Rating <- NULL
 vdata$Prediction <- NULL
+vdata$Confidence <- NULL
 vdata$Topic <- NULL
 
-# This convert the Rating from int type to factor.
+# This converts the Rating from int type to factor.
 vdata$Rating <- as.factor(vdata$Rating)
 
 # On how this works: http://joshwalters.github.io/2012/11/27/naive-bayes-classification-in-r.html
 model = train(vdata,vdata$Rating,'nb',trControl=trainControl(method='cv',number=3))
 predictions <- predict(model$finalModel,vdata)$class
 
-# Naive Bayes' returns a matrix of the confidence value for its predicted value and
+# Naive bayes' returns a matrix of the confidence value for its predicted value and
 # for all other classes. For example, it might predict 5 with 90 percent probability,
 # and 4 with 5 percent probability, etc.
 #
