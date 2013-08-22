@@ -11,7 +11,7 @@ def getresult(html, n)
 
   result = {
   :title => result_0.css(".productTitle").css("a")[0].text,
-  :author => result_0.css(".productTitle").css("a")[1].text,
+  :author => result_0.css(".productTitle").css(".ptBrand").text,
   :url => result_0.css(".productTitle").css("a")[0]["href"]
   }
   return result
