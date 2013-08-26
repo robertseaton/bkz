@@ -11,7 +11,7 @@ Install Ruby libraries:
 ```bash
 $ gem install sequel trollop nokogiri sqlite3
 ```
-For Ubuntu install:
+Install Ruby libraries in Ubuntu:
 ```bash
 $ sudo apt-get install ruby-sequel libtrollop-ruby ruby-nokogiri ruby-sqlite3
 ```
