@@ -25,13 +25,15 @@ vdata$Subjective_Rating <- NULL
 vdata$Prediction <- NULL
 vdata$Confidence <- NULL
 vdata$Topic <- NULL
+mydata <- vdata
+vdata <- mydata[!is.na(mydata$Rating),]
 
 # This converts the Rating from int type to factor.
 vdata$Rating <- as.factor(vdata$Rating)
 
 # On how this works: http://joshwalters.github.io/2012/11/27/naive-bayes-classification-in-r.html
-model = train(vdata,vdata$Rating,'nb',trControl=trainControl(method='cv',number=3))
-predictions <- predict(model$finalModel,vdata)$class
+model = train(vdata,vdata$Rating,'nb',trControl=trainControl(method='cv',number=10))
+predictions <- predict(model$finalModel,mydata)$class
 
 # Naive bayes' returns a matrix of the confidence value for its predicted value and
 # for all other classes. For example, it might predict 5 with 90 percent probability,
@@ -39,7 +41,7 @@ predictions <- predict(model$finalModel,vdata)$class
 #
 # This code grabs the max of each row of the matrix, which is the same as the confidence
 # of the predicted vale.
-confidences <- apply(predict(model$finalModel,vdata)$posterior, 1, max)
+confidences <- apply(predict(model$finalModel,mydata)$posterior, 1, max)
 
 
 # Insert the new predictions into the database.
