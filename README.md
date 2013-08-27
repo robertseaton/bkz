@@ -11,6 +11,10 @@ Install Ruby libraries:
 ```bash
 $ gem install sequel trollop nokogiri sqlite3
 ```
+Install Ruby libraries in Ubuntu:
+```bash
+$ sudo apt-get install ruby-sequel libtrollop-ruby ruby-nokogiri ruby-sqlite3
+```
 
 Next, you will need to install the necessary R libraries. Boot up the R REPL like so:
 ```bash
