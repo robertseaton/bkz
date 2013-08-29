@@ -32,7 +32,7 @@ vdata <- mydata[!is.na(mydata$Rating),]
 vdata$Rating <- as.factor(vdata$Rating)
 
 # On how this works: http://joshwalters.github.io/2012/11/27/naive-bayes-classification-in-r.html
-model = train(vdata,vdata$Rating,'nb',trControl=trainControl(method='cv',number=10))
+model = train(vdata,vdata$Rating,'nb',trControl=trainControl(method='cv',number=3))
 predictions <- predict(model$finalModel,mydata)$class
 
 # Naive bayes' returns a matrix of the confidence value for its predicted value and
