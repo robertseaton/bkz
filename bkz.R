@@ -19,36 +19,30 @@ vdata <- mydata
 
 # Remove unused columns.
 vdata$X__Recommendations <- NULL
-vdata$Citations <- NULL
 vdata$Pages <- NULL
 vdata$Subjective_Rating <- NULL
 vdata$Prediction <- NULL
 vdata$Confidence <- NULL
 vdata$Topic <- NULL
 mydata <- vdata
-vdata <- mydata[!is.na(mydata$Rating),]
+
+#vdata <- mydata[!is.na(mydata$Rating),]
+vdata$Title <- NULL
 
 # This converts the Rating from int type to factor.
 vdata$Rating <- as.factor(vdata$Rating)
+mydata$Rating <- as.factor(mydata$Rating)
 
-# On how this works: http://joshwalters.github.io/2012/11/27/naive-bayes-classification-in-r.html
-model = train(vdata,vdata$Rating,'nb',trControl=trainControl(method='cv',number=3))
-predictions <- predict(model$finalModel,mydata)$class
+mydata$Rating <- NULL
 
-# Naive bayes' returns a matrix of the confidence value for its predicted value and
-# for all other classes. For example, it might predict 5 with 90 percent probability,
-# and 4 with 5 percent probability, etc.
-#
-# This code grabs the max of each row of the matrix, which is the same as the confidence
-# of the predicted vale.
-confidences <- apply(predict(model$finalModel,mydata)$posterior, 1, max)
-
+model = train(vdata$Rating ~ ., data = vdata, 'rf', trControl=trainControl(method='repeatedcv',number=3, repeats=10))
+predictions <- predict(model$finalModel,mydata)
 
 # Insert the new predictions into the database.
 db <- dbConnect(SQLite(), dbname="books.db")
 books_db <- dbReadTable(db, "data")
 books_db$Prediction <- predictions
-books_db$Confidence <- confidences
+books_db$Confidence <- NULL
 
 # Replace old table with new table with predicted values. This would be prettier if it didn't destroy
 # the entire table each time.
