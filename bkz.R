@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 
 library("sqldf")
-library("klaR")
 library("caret")
 
 # FIXME
@@ -15,26 +14,24 @@ library("caret")
 system("sh db_to_csv.sh")
 mydata = read.csv("out.csv")
 
+# In general, the syntax "X <- NULL" removes unused columns.
+mydata$X__Recommendations <- NULL
+mydata$Pages <- NULL
+mydata$Subjective_Rating <- NULL
+mydata$Prediction <- NULL
+mydata$Confidence <- NULL
+mydata$Topic <- NULL
+
 vdata <- mydata
 
-# Remove unused columns.
-vdata$X__Recommendations <- NULL
-vdata$Pages <- NULL
-vdata$Subjective_Rating <- NULL
-vdata$Prediction <- NULL
-vdata$Confidence <- NULL
-vdata$Topic <- NULL
-mydata <- vdata
-
-#vdata <- mydata[!is.na(mydata$Rating),]
 vdata$Title <- NULL
 
 # This converts the Rating from int type to factor.
 vdata$Rating <- as.factor(vdata$Rating)
-mydata$Rating <- as.factor(mydata$Rating)
 
 mydata$Rating <- NULL
 
+# On how this works: http://cran.r-project.org/web/packages/caret/vignettes/caret.pdf
 model = train(vdata$Rating ~ ., data = vdata, 'rf', trControl=trainControl(method='repeatedcv',number=3, repeats=10))
 predictions <- predict(model$finalModel,mydata)
 
