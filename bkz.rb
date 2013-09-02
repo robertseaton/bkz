@@ -7,6 +7,7 @@ require './amazon.rb'
 
 opts = Trollop::options do
   opt :title, "Title of book ", :type => :string
+	opt :author, "Last name of author ", :type => :string
   opt :rating, "How many stars would you rate this title?", :type => :integer
   opt :recommendations, "How many people have recommended this book?", :type => :integer, :default => 0
   opt :citations, "Force citation count", :type => :integer
@@ -59,15 +60,17 @@ def getcitations(title)
   return citations
 end
 
-def add(title, citations_opt, recommendations, rating, db)
+def add(title, author, citations_opt, recommendations, rating, db)
   goodreads_data = goodreads_search(title)
-  amazon_data = amazon_search(title)
+	#TODO check
+  amazon_data = amazon_search(title, author)
 
   if citations_opt.nil?
     citations = getcitations(title)
   else
     citations = citations_opt
   end
+
   db[:data].insert(:Title => title,
                    :Citations => citations, 
                    :Published => goodreads_data[:published],
@@ -75,6 +78,7 @@ def add(title, citations_opt, recommendations, rating, db)
                    :Goodreads_Reviews => goodreads_data[:ratings_count],
                    :Amazon_Rating => amazon_data[:avg_rating],
                    :Amazon_Reviews => amazon_data[:ratings_count],
+									 :Amazon_Book_Rank => amazon_data[:ranking],
                    :Rating => rating)
 end
 setauth('aPfKh3cgbelfhnkDgQLQ')
@@ -83,6 +87,7 @@ setauth('aPfKh3cgbelfhnkDgQLQ')
 db = initdb("books.db")
 
 if not opts[:print] then
-  add(opts[:title], opts[:citations], opts[:recommendations], opts[:rating], db)
+  add(opts[:title], opts[:author], opts[:citations], opts[:recommendations], opts[:rating], db)
 else
 end
+
