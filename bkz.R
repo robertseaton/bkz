@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 
 library("sqldf")
-library("klaR")
 library("caret")
 
 # FIXME
@@ -15,38 +14,32 @@ library("caret")
 system("sh db_to_csv.sh")
 mydata = read.csv("out.csv")
 
+# In general, the syntax "X <- NULL" removes unused columns.
+mydata$X__Recommendations <- NULL
+mydata$Pages <- NULL
+mydata$Subjective_Rating <- NULL
+mydata$Prediction <- NULL
+mydata$Confidence <- NULL
+mydata$Topic <- NULL
+
 vdata <- mydata
 
-# Remove unused columns.
-vdata$X__Recommendations <- NULL
-vdata$Citations <- NULL
-vdata$Pages <- NULL
-vdata$Subjective_Rating <- NULL
-vdata$Prediction <- NULL
-vdata$Confidence <- NULL
-vdata$Topic <- NULL
+vdata$Title <- NULL
 
 # This converts the Rating from int type to factor.
 vdata$Rating <- as.factor(vdata$Rating)
 
-# On how this works: http://joshwalters.github.io/2012/11/27/naive-bayes-classification-in-r.html
-model = train(vdata,vdata$Rating,'nb',trControl=trainControl(method='cv',number=3))
-predictions <- predict(model$finalModel,vdata)$class
+mydata$Rating <- NULL
 
-# Naive bayes' returns a matrix of the confidence value for its predicted value and
-# for all other classes. For example, it might predict 5 with 90 percent probability,
-# and 4 with 5 percent probability, etc.
-#
-# This code grabs the max of each row of the matrix, which is the same as the confidence
-# of the predicted vale.
-confidences <- apply(predict(model$finalModel,vdata)$posterior, 1, max)
-
+# On how this works: http://cran.r-project.org/web/packages/caret/vignettes/caret.pdf
+model = train(vdata$Rating ~ ., data = vdata, 'rf', trControl=trainControl(method='repeatedcv',number=3, repeats=10))
+predictions <- predict(model$finalModel,mydata)
 
 # Insert the new predictions into the database.
 db <- dbConnect(SQLite(), dbname="books.db")
 books_db <- dbReadTable(db, "data")
 books_db$Prediction <- predictions
-books_db$Confidence <- confidences
+books_db$Confidence <- NULL
 
 # Replace old table with new table with predicted values. This would be prettier if it didn't destroy
 # the entire table each time.
