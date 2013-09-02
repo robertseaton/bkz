@@ -86,5 +86,3 @@ if not opts[:print] then
   add(opts[:title], opts[:citations], opts[:recommendations], opts[:rating], db)
 else
 end
-
-
