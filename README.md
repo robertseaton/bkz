@@ -11,7 +11,7 @@ Install Ruby libraries:
 ```bash
 $ gem install sequel trollop nokogiri sqlite3
 ```
-Install Ruby libraries in Ubuntu:
+Alternatively, install Ruby libraries with apt-get (Ubuntu):
 ```bash
 $ sudo apt-get install ruby-sequel libtrollop-ruby ruby-nokogiri ruby-sqlite3
 ```
@@ -25,17 +25,13 @@ Platform: x86_64-unknown-linux-gnu (64-bit)
 ...
 > install.packages("sqldf")
 ...
-> install.packages("klaR")
+> install.packages("caret", dependencies = c("Depends", "Suggests"))
 ...
-> install.packages("caret")
-...
-> install.packages("e1071")
 ```
 
 Then, if it works you should be able to do things like:
 ```bash
 $ ruby bkz.rb --title "Information Theory, Inference, and Learning Algorithm"
-{:title=>"Information Theory, Inference, and Learning Algorithms", :source=>nil, :citations=>nil, :tags=>nil, :print=>false, :help=>false, :title_given=>true}
 Is this the title of your book: Information theory, inference and learning algorithms? [y/n]
 y
 $ Rscript bkz.R 
