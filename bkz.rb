@@ -4,6 +4,7 @@ require 'trollop'
 require 'csv'
 require './goodreads.rb'
 require './amazon.rb'
+require './google-books.rb'
 
 opts = Trollop::options do
   opt :title, "Title of book ", :type => :string
@@ -13,6 +14,7 @@ opts = Trollop::options do
   opt :citations, "Force citation count", :type => :integer
   opt :tags, "Tags for the book, e.g. a topic", :type => :string
   opt :print, "Print the database."
+  opt :maintenance, "Run database maintenance."
 end
 
 def initialize?(dbpath)
@@ -60,17 +62,26 @@ def getcitations(title)
   return citations
 end
 
-def add(title, author, citations_opt, recommendations, rating, db)
+def db_maintenance(db)
+  db[:data].all { |record|
+    info = GoogBooks::search(record[:Title])
+    p record[:Title]
+    db[:data].where(:Title => record[:Title]).update(:Topic => info[:category])
+    db[:data].where(:Title => record[:Title]).update(:GoogBooks_Rating => info[:avg_rating])
+    db[:data].where(:Title => record[:Title]).update(:GoogBooks_Reviews => info[:ratings_count])
+    db[:data].where(:Title => record[:Title]).update(:Pages => info[:page_count])
+    db[:data].where(:Title => record[:Title]).update(:Author => info[:author])
+    }
+end 
+
+def add(title, citations_opt, recommendations, rating, db)
   goodreads_data = goodreads_search(title)
-	#TODO check
-  amazon_data = amazon_search(title, author)
 
   if citations_opt.nil?
     citations = getcitations(title)
   else
     citations = citations_opt
   end
-
   db[:data].insert(:Title => title,
                    :Citations => citations, 
                    :Published => goodreads_data[:published],
@@ -80,14 +91,21 @@ def add(title, author, citations_opt, recommendations, rating, db)
                    :Amazon_Reviews => amazon_data[:ratings_count],
                    :Amazon_Book_Rank => amazon_data[:ranking],
                    :Rating => rating)
+                   :GoogBooks_Rating => googbooks_data[:avg_rating],
+                   :GoogBooks_Reviews => googbooks_data[:ratings_count],
+                   :Pages => googbooks_data[:page_count],
+                   :Author => googbooks_data[:author],
+                   :Rating => rating,
+                   :Topic => googbooks_data[:category])
 end
 setauth('aPfKh3cgbelfhnkDgQLQ')
 
 # create databse in memory
 db = initdb("books.db")
 
-if not opts[:print] then
-  add(opts[:title], opts[:author], opts[:citations], opts[:recommendations], opts[:rating], db)
+if not opts[:maintenance] then
+  add(opts[:title], opts[:citations], opts[:recommendations], opts[:rating], db)
 else
+  db_maintenance(db)
 end
 

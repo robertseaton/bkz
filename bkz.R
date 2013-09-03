@@ -20,6 +20,7 @@ mydata$Pages <- NULL
 mydata$Subjective_Rating <- NULL
 mydata$Prediction <- NULL
 mydata$Confidence <- NULL
+mydata$Author <- NULL
 mydata$Topic <- NULL
 mydata$Amazon_Book_Rank <- NULL
 
