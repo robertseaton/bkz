@@ -7,7 +7,7 @@ require './amazon.rb'
 
 opts = Trollop::options do
   opt :title, "Title of book ", :type => :string
-	opt :author, "Last name of author ", :type => :string
+  opt :author, "Last name of author ", :type => :string
   opt :rating, "How many stars would you rate this title?", :type => :integer
   opt :recommendations, "How many people have recommended this book?", :type => :integer, :default => 0
   opt :citations, "Force citation count", :type => :integer
@@ -78,7 +78,7 @@ def add(title, author, citations_opt, recommendations, rating, db)
                    :Goodreads_Reviews => goodreads_data[:ratings_count],
                    :Amazon_Rating => amazon_data[:avg_rating],
                    :Amazon_Reviews => amazon_data[:ratings_count],
-									 :Amazon_Book_Rank => amazon_data[:ranking],
+                   :Amazon_Book_Rank => amazon_data[:ranking],
                    :Rating => rating)
 end
 setauth('aPfKh3cgbelfhnkDgQLQ')
