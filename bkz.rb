@@ -62,7 +62,7 @@ def getcitations(title)
   return citations
 end
 
-def db_maintenance(db)
+def gb_maintenance(db)
   db[:data].all { |record|
     info = GoogBooks::search(record[:Title])
     p record[:Title]
@@ -71,11 +71,27 @@ def db_maintenance(db)
     db[:data].where(:Title => record[:Title]).update(:GoogBooks_Reviews => info[:ratings_count])
     db[:data].where(:Title => record[:Title]).update(:Pages => info[:page_count])
     db[:data].where(:Title => record[:Title]).update(:Author => info[:author])
-    }
-end 
+  }
+end
 
-def add(title, citations_opt, recommendations, rating, db)
+def am_maintenance(db)
+    db[:data].all { |record|
+    info = amazon_search(record[:Title], nil)
+    p record[:Title]
+    p info[:ranking]
+    
+    db[:data].where(:Title => record[:Title]).update(:Amazon_Book_Rank => info[:ranking])
+  }
+end
+
+def db_maintenance(db)
+#  gb_maintenance(db)
+  am_maintenance(db)
+end
+
+def add(title, author, citations_opt, recommendations, rating, db)
   goodreads_data = goodreads_search(title)
+  amazon_data = amazon_search(title, author)
 
   if citations_opt.nil?
     citations = getcitations(title)
@@ -90,7 +106,6 @@ def add(title, citations_opt, recommendations, rating, db)
                    :Amazon_Rating => amazon_data[:avg_rating],
                    :Amazon_Reviews => amazon_data[:ratings_count],
                    :Amazon_Book_Rank => amazon_data[:ranking],
-                   :Rating => rating)
                    :GoogBooks_Rating => googbooks_data[:avg_rating],
                    :GoogBooks_Reviews => googbooks_data[:ratings_count],
                    :Pages => googbooks_data[:page_count],
@@ -104,7 +119,7 @@ setauth('aPfKh3cgbelfhnkDgQLQ')
 db = initdb("books.db")
 
 if not opts[:maintenance] then
-  add(opts[:title], opts[:citations], opts[:recommendations], opts[:rating], db)
+  add(opts[:title], opts[:author], opts[:citations], opts[:recommendations], opts[:rating], db)
 else
   db_maintenance(db)
 end
