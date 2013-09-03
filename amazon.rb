@@ -4,11 +4,11 @@ require 'net/http'
 
 def geturl(title, author)
 
-	mytitle = title.dup 
-
-	if author != nil		
-		mytitle = mytitle << "+by+" << author
-	end
+  mytitle = title.dup 
+  
+  if author != nil		
+    mytitle = mytitle << "+by+" << author
+  end
 
   return "http://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Dstripbooks&field-keywords=#{URI.encode(mytitle)}"
 end
@@ -26,15 +26,14 @@ end
 
 def getratings(html)
 
-	rank = html.text.match("[0-9]*[,][0-9]* in Books").to_s
-	# known issue for amazon book rank seems like a syntax error <1M owrks and >1 thousand
-	rank = rank.delete('in Books').to_s
-	rank = rank.delete(',').to_i
+  rank = html.text.match("[,0-9]+ in Books").to_s
+  rank = rank.delete('in Books').to_s
+  rank = rank.delete(',').to_i
 
   ratings = {
     :avg_rating => html.text.match("[1-5][.][0-5] out of 5 stars")[0].to_f,
     :ratings_count => html.text.match("[0-9]* customer review")[0].to_i,
-		:ranking => rank
+    :ranking => rank
   }
   return ratings
 rescue # In case there are no Amazon ratings...
