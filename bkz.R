@@ -21,6 +21,7 @@ mydata$Subjective_Rating <- NULL
 mydata$Prediction <- NULL
 mydata$Confidence <- NULL
 mydata$Topic <- NULL
+mydata$Amazon_Book_Rank <- NULL
 
 vdata <- mydata
 
