@@ -13,6 +13,7 @@ opts = Trollop::options do
   opt :citations, "Force citation count", :type => :integer
   opt :tags, "Tags for the book, e.g. a topic", :type => :string
   opt :print, "Print the database."
+  opt :maintenance, "Run database maintenance."
 end
 
 def initialize?(dbpath)
@@ -60,10 +61,10 @@ def getcitations(title)
   return citations
 end
 
-def update_topics(db)
+def db_maintenance(db)
   db[:data].all { |record|
-    p record[:Title]
     info = GoogBooks::search(record[:Title])
+    p record[:Title]
     db[:data].where(:Title => record[:Title]).update(:Topic => info[:category])
     db[:data].where(:Title => record[:Title]).update(:GoogBooks_Rating => info[:avg_rating])
     db[:data].where(:Title => record[:Title]).update(:GoogBooks_Reviews => info[:ratings_count])
@@ -101,10 +102,10 @@ setauth('aPfKh3cgbelfhnkDgQLQ')
 # create databse in memory
 db = initdb("books.db")
 
-if not opts[:print] then
+if not opts[:maintenance] then
   add(opts[:title], opts[:citations], opts[:recommendations], opts[:rating], db)
 else
-  update_topics(db)
+  db_maintenance(db)
 end
 
 
