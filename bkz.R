@@ -33,7 +33,7 @@ vdata$Rating <- as.factor(vdata$Rating)
 mydata$Rating <- NULL
 
 # On how this works: http://cran.r-project.org/web/packages/caret/vignettes/caret.pdf
-model = train(vdata$Rating ~ ., data = vdata, 'rf', trControl=trainControl(method='repeatedcv',number=10, repeats=10))
+model = train(vdata$Rating ~ ., data = vdata, 'parRF', trControl=trainControl(method='repeatedcv',number=3, repeats=10))
 predictions <- predict(model$finalModel,mydata)
 
 # Insert the new predictions into the database.
