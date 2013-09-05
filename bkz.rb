@@ -65,7 +65,6 @@ end
 def gb_maintenance(db)
   db[:data].all { |record|
     info = GoogBooks::search(record[:Title])
-    p record[:Title]
     db[:data].where(:Title => record[:Title]).update(:Topic => info[:category])
     db[:data].where(:Title => record[:Title]).update(:GoogBooks_Rating => info[:avg_rating])
     db[:data].where(:Title => record[:Title]).update(:GoogBooks_Reviews => info[:ratings_count])
@@ -77,21 +76,19 @@ end
 def am_maintenance(db)
     db[:data].all { |record|
     info = amazon_search(record[:Title], nil)
-    p record[:Title]
-    p info[:ranking]
-    
     db[:data].where(:Title => record[:Title]).update(:Amazon_Book_Rank => info[:ranking])
   }
 end
 
 def db_maintenance(db)
-#  gb_maintenance(db)
+  gb_maintenance(db)
   am_maintenance(db)
 end
 
 def add(title, author, citations_opt, recommendations, rating, db)
   goodreads_data = goodreads_search(title)
   amazon_data = amazon_search(title, author)
+  googbooks_data = GoogBooks::search(title)
 
   if citations_opt.nil?
     citations = getcitations(title)
