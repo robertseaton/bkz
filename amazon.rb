@@ -34,7 +34,7 @@ def getratings(html)
 
   ratings = {
     :avg_rating => html.text.match("[1-5][.][0-5] out of 5 stars")[0].to_f,
-    :ratings_count => html.text.match("[0-9]* customer review")[0].to_i,
+    :ratings_count => html.text.match("[,0-9]+ customer review")[0].delete(',').to_i,
     :ranking => rank
   }
   return ratings
