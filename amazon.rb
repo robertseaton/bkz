@@ -10,7 +10,9 @@ def geturl(title, author)
     mytitle = mytitle << "+by+" << author
   end
 
-  return "http://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Dstripbooks&field-keywords=#{URI.encode(mytitle)}"
+  mytitle = URI.encode("\"#{title}\"")
+
+  return "http://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Dstripbooks&field-keywords=#{mytitle}"
 end
 
 def getresult(html, n)
@@ -40,7 +42,8 @@ rescue # In case there are no Amazon ratings...
   puts "Didn't find Amazon ratings."
   ratings = {
     :avg_rating => 0,
-    :ratings_count => 0
+    :ratings_count => 0,
+    :ranking => rank
   }
   return ratings
 end
