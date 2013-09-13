@@ -27,6 +27,7 @@ Platform: x86_64-unknown-linux-gnu (64-bit)
 ...
 > install.packages("caret", dependencies = c("Depends", "Suggests"))
 ...
+> install.packages("doMC")
 ```
 
 Then, if it works you should be able to do things like:

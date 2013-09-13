@@ -2,6 +2,10 @@
 
 library("sqldf")
 library("caret")
+library("doMC")
+
+# Register multiple cores.
+registerDoMC(cores = 2)
 
 # FIXME
 #
@@ -10,7 +14,6 @@ library("caret")
 # some kind of type error.
 #
 # If I convert the db to csv first, it works fine, which is gross, but whatever.
-
 system("sh db_to_csv.sh")
 mydata = read.csv("out.csv")
 
@@ -22,19 +25,18 @@ mydata$Prediction <- NULL
 mydata$Confidence <- NULL
 mydata$Author <- NULL
 mydata$Topic <- NULL
+mydata$User_Topic <- NULL
+mydata$Title <- NULL
 
 vdata <- mydata
-
-vdata$Title <- NULL
 
 # This converts the Rating from int type to factor.
 vdata$Rating <- as.factor(vdata$Rating)
 
 mydata$Rating <- NULL
 
-# On how this works: http://cran.r-project.org/web/packages/caret/vignettes/caret.pdf
-model = train(vdata$Rating ~ ., data = vdata, 'parRF', trControl=trainControl(method='repeatedcv',number=3, repeats=10))
-predictions <- predict(model$finalModel,mydata)
+logitboost = train(vdata$Rating ~ ., data = vdata, 'logitBoost', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))
+predictions <- predict(logitboost$finalModel, mydata)
 
 # Insert the new predictions into the database.
 db <- dbConnect(SQLite(), dbname="books.db")
