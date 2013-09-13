@@ -4,7 +4,6 @@ library("sqldf")
 library("caret")
 library("doMC")
 
-# Register multiple cores.
 registerDoMC(cores = 2)
 
 # FIXME
