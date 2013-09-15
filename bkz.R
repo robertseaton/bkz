@@ -34,8 +34,10 @@ vdata$Rating <- as.factor(vdata$Rating)
 
 mydata$Rating <- NULL
 
-logitboost = train(vdata$Rating ~ ., data = vdata, 'logitBoost', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))
+logitboost = train(vdata$Rating ~ ., data = vdata, 'logitBoost', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10), preProcess=("knnImpute"))
+#svm = train(vdata$Rating ~ ., data = vdata, 'logitBoost', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))
 predictions <- predict(logitboost$finalModel, mydata)
+confidences <- predict(logitboost$finalModel, mydata, type="raw")
 
 # Insert the new predictions into the database.
 db <- dbConnect(SQLite(), dbname="books.db")

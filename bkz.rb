@@ -76,12 +76,12 @@ end
 def am_maintenance(db)
     db[:data].all { |record|
     info = amazon_search(record[:Title], nil)
-    db[:data].where(:Title => record[:Title]).update(:Amazon_Book_Rank => info[:ranking])
+    db[:data].where(:Title => record[:Title]).update(:Price => info[:price])
   }
 end
 
 def db_maintenance(db)
-  gb_maintenance(db)
+  # gb_maintenance(db)
   am_maintenance(db)
 end
 
@@ -103,6 +103,7 @@ def add(title, author, citations_opt, recommendations, rating, db)
                    :Amazon_Rating => amazon_data[:avg_rating],
                    :Amazon_Reviews => amazon_data[:ratings_count],
                    :Amazon_Book_Rank => amazon_data[:ranking],
+                   :Price => amazon_data[:price],
                    :GoogBooks_Rating => googbooks_data[:avg_rating],
                    :GoogBooks_Reviews => googbooks_data[:ratings_count],
                    :Pages => googbooks_data[:page_count],
