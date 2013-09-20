@@ -26,33 +26,32 @@ mydata$Author <- NULL
 mydata$Topic <- NULL
 mydata$User_Topic <- NULL
 #mydata$Title <- NULL
-mydata$CitesPerYear <- mydata$Citations / (2014 - mydata$Published)
-mydata$AmReviewsPerYear <- mydata$Amazon_Reviews / (2014 - mydata$Published)
-mydata$GdReviewsPerYear <- mydata$Goodreads_Reviews / (2014 - mydata$Published)
-mydata$CitationPrice <- mydata$Citations / mydata$Price
-mydata$AGDiff <- mydata$Amazon_Rating - mydata$Goodreads_Rating
-mydata$CitationPrice <- mydata$Citations / mydata$Price
-mydata$GdReviewsPerYear <- mydata$Goodreads_Reviews / (2014 - mydata$Published)
-mydata$AmReviewsPerYear <- mydata$Amazon_Reviews / (2014 - mydata$Published)
-mydata$Goodreads_RR <- log(mydata$Goodreads_Reviews) + mydata$Goodreads_Rating
-mydata$Amazon_RR <- log(mydata$Amazon_Reviews) + mydata$Amazon_Rating
-mydata$RRRR <- mydata$Amazon_RR + mydata$Goodreads_RR
-vdata$WR <- (vdata$Goodreads_Reviews/(vdata$Goodreads_Reviews + 5)) * vdata$Goodreads_Rating + (10 / (vdata$Goodreads_Reviews + 5)) * mean(vdata$Goodreads_Rating)
-mydata$Pop <- mydata$Price * mydata$Goodreads_Reviews * mydata$Amazon_Reviews * mydata$Amazon_Book_Rank
+#mydata$CitesPerYear <- mydata$Citations / (2014 - mydata$Published)
+#mydata$AmReviewsPerYear <- mydata$Amazon_Reviews / (2014 - mydata$Published)
+#mydata$GdReviewsPerYear <- mydata$Goodreads_Reviews / (2014 - mydata$Published)
+#mydata$CitationPrice <- mydata$Citations / mydata$Price
+## mydata$AGDiff <- mydata$Amazon_Rating - mydata$Goodreads_Rating
+## mydata$Goodreads_RR <- log(mydata$Goodreads_Reviews) + mydata$Goodreads_Rating
+## mydata$Amazon_RR <- log(mydata$Amazon_Reviews) + mydata$Amazon_Rating
+## mydata$RRRR <- mydata$Amazon_RR + mydata$Goodreads_RR
+#mydata$WR <- (mydata$Goodreads_Reviews/(mydata$Goodreads_Reviews + 5)) * mydata$Goodreads_Rating + (10 / (mydata$Goodreads_Reviews + 5)) * mean(mydata$Goodreads_Rating)
+#mydata$Pop <- mydata$Price * mydata$Goodreads_Reviews * mydata$Amazon_Reviews * mydata$Amazon_Book_Rank
 mydata$Characters_in_Title <- nchar(as.character(mydata$Title))
 mydata$WordsInTitle <- sapply(gregexpr("\\b\\W+\\b", as.character(mydata$Title), perl=TRUE), function(x) sum(x>0) ) + 1
 mydata$AvgWordLengthTitle <- mydata$Characters_in_Title / mydata$WordsInTitle
+mydata$Title <- NULL
+mydata$Price <- NULL
 vdata <- mydata
 
 # This converts the Rating from int type to factor.
 vdata$Rating <- as.ordered(vdata$Rating)
-
+vdata <- vdata[complete.cases(vdata),]
 mydata$Rating <- NULL
 
 model = train(vdata$Rating ~ ., data = vdata, 'rf', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))#, preProcess=("knnImpute"))
 #svm = train(vdata$Rating ~ ., data = vdata, 'logitBoost', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))
 predictions <- predict(model$finalModel, mydata)
-confidences <- predict(model$finalModel, mydata, type="raw")
+#confidences <- predict(model$finalModel, mydata, type="prob")
 
 # Insert the new predictions into the database.
 db <- dbConnect(SQLite(), dbname="books.db")
