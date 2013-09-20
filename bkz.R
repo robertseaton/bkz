@@ -25,19 +25,34 @@ mydata$Confidence <- NULL
 mydata$Author <- NULL
 mydata$Topic <- NULL
 mydata$User_Topic <- NULL
-mydata$Title <- NULL
-
+#mydata$Title <- NULL
+mydata$CitesPerYear <- mydata$Citations / (2014 - mydata$Published)
+mydata$AmReviewsPerYear <- mydata$Amazon_Reviews / (2014 - mydata$Published)
+mydata$GdReviewsPerYear <- mydata$Goodreads_Reviews / (2014 - mydata$Published)
+mydata$CitationPrice <- mydata$Citations / mydata$Price
+mydata$AGDiff <- mydata$Amazon_Rating - mydata$Goodreads_Rating
+mydata$CitationPrice <- mydata$Citations / mydata$Price
+mydata$GdReviewsPerYear <- mydata$Goodreads_Reviews / (2014 - mydata$Published)
+mydata$AmReviewsPerYear <- mydata$Amazon_Reviews / (2014 - mydata$Published)
+mydata$Goodreads_RR <- log(mydata$Goodreads_Reviews) + mydata$Goodreads_Rating
+mydata$Amazon_RR <- log(mydata$Amazon_Reviews) + mydata$Amazon_Rating
+mydata$RRRR <- mydata$Amazon_RR + mydata$Goodreads_RR
+vdata$WR <- (vdata$Goodreads_Reviews/(vdata$Goodreads_Reviews + 5)) * vdata$Goodreads_Rating + (10 / (vdata$Goodreads_Reviews + 5)) * mean(vdata$Goodreads_Rating)
+mydata$Pop <- mydata$Price * mydata$Goodreads_Reviews * mydata$Amazon_Reviews * mydata$Amazon_Book_Rank
+mydata$Characters_in_Title <- nchar(as.character(mydata$Title))
+mydata$WordsInTitle <- sapply(gregexpr("\\b\\W+\\b", as.character(mydata$Title), perl=TRUE), function(x) sum(x>0) ) + 1
+mydata$AvgWordLengthTitle <- mydata$Characters_in_Title / mydata$WordsInTitle
 vdata <- mydata
 
 # This converts the Rating from int type to factor.
-vdata$Rating <- as.factor(vdata$Rating)
+vdata$Rating <- as.ordered(vdata$Rating)
 
 mydata$Rating <- NULL
 
-logitboost = train(vdata$Rating ~ ., data = vdata, 'logitBoost', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10), preProcess=("knnImpute"))
+model = train(vdata$Rating ~ ., data = vdata, 'rf', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))#, preProcess=("knnImpute"))
 #svm = train(vdata$Rating ~ ., data = vdata, 'logitBoost', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))
-predictions <- predict(logitboost$finalModel, mydata)
-confidences <- predict(logitboost$finalModel, mydata, type="raw")
+predictions <- predict(model$finalModel, mydata)
+confidences <- predict(model$finalModel, mydata, type="raw")
 
 # Insert the new predictions into the database.
 db <- dbConnect(SQLite(), dbname="books.db")

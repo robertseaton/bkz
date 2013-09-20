@@ -5,6 +5,7 @@ require 'csv'
 require './goodreads.rb'
 require './amazon.rb'
 require './google-books.rb'
+require './google.rb'
 
 opts = Trollop::options do
   opt :title, "Title of book ", :type => :string
@@ -80,15 +81,34 @@ def am_maintenance(db)
   }
 end
 
+def g_maintenance(db)
+  db[:data].all { |record|
+    if db[:data].where(:Title => record[:Title]).first[:Google_Results].nil? ||
+        db[:data].where(:Title => record[:Title]).first[:Google_Results_LW].nil? ||
+        db[:data].where(:Title => record[:Title]).first[:Google_Results_HN].nil?
+      count = Google::search(record[:Title], nil)
+      count_lw = Google::search(record[:Title], "lesswrong.com")
+      count_hn = Google::search(record[:Title], "news.ycombinator.com")
+      db[:data].where(:Title => record[:Title]).update(:Google_Results => count)
+      db[:data].where(:Title => record[:Title]).update(:Google_Results_LW => count_lw)
+      db[:data].where(:Title => record[:Title]).update(:Google_Results_HN => count_hn)
+    end
+  }
+end
+
 def db_maintenance(db)
   # gb_maintenance(db)
-  am_maintenance(db)
+  #am_maintenance(db)
+  g_maintenance(db)
 end
 
 def add(title, author, citations_opt, recommendations, rating, db)
   goodreads_data = goodreads_search(title)
   amazon_data = amazon_search(title, author)
   googbooks_data = GoogBooks::search(title)
+  google_results = Google::search(title, nil)
+  google_results_lw = Google::search(title, "lesswrong.com")
+  google_results_hn = Google::search(title, "news.ycombinator.com")
 
   if citations_opt.nil?
     citations = getcitations(title)
@@ -109,7 +129,10 @@ def add(title, author, citations_opt, recommendations, rating, db)
                    :Pages => googbooks_data[:page_count],
                    :Author => googbooks_data[:author],
                    :Rating => rating,
-                   :Topic => googbooks_data[:category])
+                   :Topic => googbooks_data[:category],
+                   :Google_Results => google_results,
+                   :Google_Results_LW => google_results_lw,
+                   :Google_Results_HN => google_results_hn)
 end
 setauth('aPfKh3cgbelfhnkDgQLQ')
 
