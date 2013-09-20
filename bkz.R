@@ -51,13 +51,13 @@ mydata$Rating <- NULL
 model = train(vdata$Rating ~ ., data = vdata, 'rf', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))#, preProcess=("knnImpute"))
 #svm = train(vdata$Rating ~ ., data = vdata, 'logitBoost', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))
 predictions <- predict(model$finalModel, mydata)
-#confidences <- predict(model$finalModel, mydata, type="prob")
-
+confidences <- predict(model$finalModel, mydata, type="prob")
+confidences <- apply(confidences, 1, FUN = max)
 # Insert the new predictions into the database.
 db <- dbConnect(SQLite(), dbname="books.db")
 books_db <- dbReadTable(db, "data")
 books_db$Prediction <- predictions
-books_db$Confidence <- NULL
+books_db$Confidence <- confidences
 
 # Replace old table with new table with predicted values. This would be prettier if it didn't destroy
 # the entire table each time.
