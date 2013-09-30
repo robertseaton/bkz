@@ -48,7 +48,22 @@ vdata$Rating <- as.ordered(vdata$Rating)
 vdata <- vdata[complete.cases(vdata),]
 mydata$Rating <- NULL
 
-model = train(vdata$Rating ~ ., data = vdata, 'rf', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))#, preProcess=("knnImpute"))
+model = train(vdata$Rating ~ vdata$Characters_in_Title:vdata$Goodreads_Rating:vdata$Amazon_Rating:vdata$AvgWordLengthTitle +
+    vdata$Amazon_Book_Rank:vdata$Amazon_Reviews:vdata$Goodreads_Rating:vdata$Citations:vdata$Google_Results_HN:vdata$Published:vdata$WordsInTitle +
+    vdata$Amazon_Book_Rank:vdata$Amazon_Reviews:vdata$Characters_in_Title:vdata$AvgWordLengthTitle:vdata$Published +
+    vdata$Characters_in_Title:vdata$GoogBooks_Rating:vdata$Amazon_Rating:vdata$AvgWordLengthTitle +
+    vdata$Characters_in_Title:vdata$GoogBooks_Rating:vdata$Amazon_Rating:vdata$AvgWordLengthTitle:vdata$Published +
+    vdata$Amazon_Book_Rank:vdata$GoogBooks_Rating:vdata$Citations:vdata$GoogBooks_Reviews +
+    vdata$Amazon_Book_Rank:vdata$Citations:vdata$Goodreads_Reviews:vdata$Published:vdata$WordsInTitle +
+    vdata$Amazon_Book_Rank:vdata$Amazon_Reviews:vdata$Amazon_Rating:vdata$Citations:vdata$Google_Results_HN:vdata$Published:vdata$WordsInTitle +
+    vdata$Amazon_Book_Rank:vdata$Amazon_Reviews:vdata$Characters_in_Title:vdata$Goodreads_Rating:vdata$Amazon_Rating:vdata$AvgWordLengthTitle:vdata$Citations:vdata$Published:vdata$WordsInTitle +
+    vdata$Characters_in_Title:vdata$GoogBooks_Rating:vdata$Amazon_Rating:vdata$AvgWordLengthTitle:vdata$WordsInTitle +
+    vdata$Amazon_Book_Rank:vdata$Characters_in_Title:vdata$Citations:vdata$Goodreads_Reviews:vdata$Published:vdata$WordsInTitle +
+    vdata$Goodreads_Rating:vdata$Amazon_Rating:vdata$AvgWordLengthTitle +
+    vdata$Amazon_Book_Rank:vdata$Characters_in_Title:vdata$Goodreads_Rating:vdata$GoogBooks_Rating:vdata$Amazon_Rating:vdata$Citations:vdata$Google_Results_HN:vdata$Published:vdata$WordsInTitle +
+    vdata$Amazon_Book_Rank:vdata$Characters_in_Title:vdata$Goodreads_Rating:vdata$Google_Results_LW:vdata$Amazon_Rating:vdata$Google_Results_HN:vdata$WordsInTitle +
+    vdata$Characters_in_Title:vdata$Amazon_Rating:vdata$AvgWordLengthTitle +
+    vdata$Published, data = vdata, 'rf', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))#, preProcess=("knnImpute"))
 #svm = train(vdata$Rating ~ ., data = vdata, 'logitBoost', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))
 predictions <- predict(model$finalModel, mydata)
 confidences <- predict(model$finalModel, mydata, type="prob")
