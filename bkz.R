@@ -44,7 +44,7 @@ vdata$Rating <- as.ordered(vdata$Rating)
 vdata <- vdata[complete.cases(vdata),]
 mydata$Rating <- NULL
 
-model = train(vdata$Rating ~ ., data = vdata, 'svmPoly', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))#, preProcess=("knnImpute"))
+model = train(vdata$Rating ~ ., data = vdata, 'svmPoly', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10), tuneLength = 8)#, preProcess=("knnImpute"))
 #svm = train(vdata$Rating ~ ., data = vdata, 'logitBoost', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))
 
 predictions <- predict(model$finalModel, mydata)
