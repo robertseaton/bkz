@@ -26,14 +26,10 @@ mydata$Author <- NULL
 mydata$Topic <- NULL
 mydata$User_Topic <- NULL
 #mydata$Title <- NULL
-#mydata$CitesPerYear <- mydata$Citations / (2014 - mydata$Published)
+mydata$CitesPerYear <- mydata$Citations / (2014 - mydata$Published)
 #mydata$AmReviewsPerYear <- mydata$Amazon_Reviews / (2014 - mydata$Published)
 #mydata$GdReviewsPerYear <- mydata$Goodreads_Reviews / (2014 - mydata$Published)
 #mydata$CitationPrice <- mydata$Citations / mydata$Price
-## mydata$AGDiff <- mydata$Amazon_Rating - mydata$Goodreads_Rating
-## mydata$Goodreads_RR <- log(mydata$Goodreads_Reviews) + mydata$Goodreads_Rating
-## mydata$Amazon_RR <- log(mydata$Amazon_Reviews) + mydata$Amazon_Rating
-## mydata$RRRR <- mydata$Amazon_RR + mydata$Goodreads_RR
 #mydata$WR <- (mydata$Goodreads_Reviews/(mydata$Goodreads_Reviews + 5)) * mydata$Goodreads_Rating + (10 / (mydata$Goodreads_Reviews + 5)) * mean(mydata$Goodreads_Rating)
 #mydata$Pop <- mydata$Price * mydata$Goodreads_Reviews * mydata$Amazon_Reviews * mydata$Amazon_Book_Rank
 mydata$Characters_in_Title <- nchar(as.character(mydata$Title))
@@ -48,24 +44,11 @@ vdata$Rating <- as.ordered(vdata$Rating)
 vdata <- vdata[complete.cases(vdata),]
 mydata$Rating <- NULL
 
-model = train(vdata$Rating ~ vdata$Characters_in_Title:vdata$Goodreads_Rating:vdata$Amazon_Rating:vdata$AvgWordLengthTitle +
-    vdata$Amazon_Book_Rank:vdata$Amazon_Reviews:vdata$Goodreads_Rating:vdata$Citations:vdata$Google_Results_HN:vdata$Published:vdata$WordsInTitle +
-    vdata$Amazon_Book_Rank:vdata$Amazon_Reviews:vdata$Characters_in_Title:vdata$AvgWordLengthTitle:vdata$Published +
-    vdata$Characters_in_Title:vdata$GoogBooks_Rating:vdata$Amazon_Rating:vdata$AvgWordLengthTitle +
-    vdata$Characters_in_Title:vdata$GoogBooks_Rating:vdata$Amazon_Rating:vdata$AvgWordLengthTitle:vdata$Published +
-    vdata$Amazon_Book_Rank:vdata$GoogBooks_Rating:vdata$Citations:vdata$GoogBooks_Reviews +
-    vdata$Amazon_Book_Rank:vdata$Citations:vdata$Goodreads_Reviews:vdata$Published:vdata$WordsInTitle +
-    vdata$Amazon_Book_Rank:vdata$Amazon_Reviews:vdata$Amazon_Rating:vdata$Citations:vdata$Google_Results_HN:vdata$Published:vdata$WordsInTitle +
-    vdata$Amazon_Book_Rank:vdata$Amazon_Reviews:vdata$Characters_in_Title:vdata$Goodreads_Rating:vdata$Amazon_Rating:vdata$AvgWordLengthTitle:vdata$Citations:vdata$Published:vdata$WordsInTitle +
-    vdata$Characters_in_Title:vdata$GoogBooks_Rating:vdata$Amazon_Rating:vdata$AvgWordLengthTitle:vdata$WordsInTitle +
-    vdata$Amazon_Book_Rank:vdata$Characters_in_Title:vdata$Citations:vdata$Goodreads_Reviews:vdata$Published:vdata$WordsInTitle +
-    vdata$Goodreads_Rating:vdata$Amazon_Rating:vdata$AvgWordLengthTitle +
-    vdata$Amazon_Book_Rank:vdata$Characters_in_Title:vdata$Goodreads_Rating:vdata$GoogBooks_Rating:vdata$Amazon_Rating:vdata$Citations:vdata$Google_Results_HN:vdata$Published:vdata$WordsInTitle +
-    vdata$Amazon_Book_Rank:vdata$Characters_in_Title:vdata$Goodreads_Rating:vdata$Google_Results_LW:vdata$Amazon_Rating:vdata$Google_Results_HN:vdata$WordsInTitle +
-    vdata$Characters_in_Title:vdata$Amazon_Rating:vdata$AvgWordLengthTitle +
-    vdata$Published, data = vdata, 'rf', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))#, preProcess=("knnImpute"))
+model = train(vdata$Rating ~ ., data = vdata, 'svmPoly', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))#, preProcess=("knnImpute"))
 #svm = train(vdata$Rating ~ ., data = vdata, 'logitBoost', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))
+
 predictions <- predict(model$finalModel, mydata)
+
 confidences <- predict(model$finalModel, mydata, type="prob")
 confidences <- apply(confidences, 1, FUN = max)
 # Insert the new predictions into the database.
