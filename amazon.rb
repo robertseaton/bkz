@@ -4,7 +4,6 @@ require 'net/http'
 require 'debugger'
 
 def geturl(title, author)
-
   mytitle = title.dup 
   
   if author != nil		
@@ -28,38 +27,48 @@ def getresult(html, n)
 end		
 
 def getratings(html, title)
-
   rank = html.text.match("[,0-9]+ in Books").to_s
   rank = rank.delete('in Books').to_s
   rank = rank.delete(',').to_i
+  price = getprice(html, title)
 
   ratings = {
-    :avg_rating => html.text.match("[1-5][.][0-5] out of 5 stars")[0].to_f,
+    :avg_rating => html.text.match("[1-5][.][0-9] out of 5 stars")[0].to_f,
     :ratings_count => html.text.match("[,0-9]+ customer review")[0].delete(',').to_i,
     :ranking => rank,
-    :price => getprice(html, title)
+    :price => price
   }
+
   return ratings
-rescue # In case there are no Amazon ratings...
+ rescue # In case there are no Amazon ratings...
   puts "Didn't find Amazon ratings."
-  ratings = {
-    :avg_rating => 0,
-    :ratings_count => 0,
-    :ranking => rank,
-    :price => nil
-  }
-  return ratings
+   ratings = {
+     :avg_rating => 0,
+     :ratings_count => 0,
+     :ranking => rank,
+     :price => nil
+   }
+   return ratings
 end
 
 def getprice(html, title)
-  price = html.css('.rentPrice').first.text.delete("\n $").to_f
-  return price
-rescue
-  price = html.css('.priceLarge').first.text.delete("\n $").to_f
-  return price
-rescue
-  price = nil
-  return price
+  begin
+    price = html.css('.rentPrice').first.text.delete("\n $").to_f
+    return price
+  rescue
+    begin
+      price = html.css('.priceLarge').first.text.delete("\n $").to_f
+      return price
+    rescue
+      begin
+        price = html.css('.price').first.text.delete("\n $").to_f
+        return price
+      rescue
+        price = nil
+        return price
+      end
+    end
+  end
 end
 
 def amazon_search(title, author)
