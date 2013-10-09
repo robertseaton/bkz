@@ -44,13 +44,13 @@ vdata$Rating <- as.ordered(vdata$Rating)
 vdata <- vdata[complete.cases(vdata),]
 mydata$Rating <- NULL
 
-model = train(vdata$Rating ~ ., data = vdata, 'svmPoly', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10), tuneLength = 8)#, preProcess=("knnImpute"))
+model = train(vdata$Rating ~ ., data = vdata, 'svmPoly', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10, classProbs = TRUE))#, preProcess=("knnImpute"))
 #svm = train(vdata$Rating ~ ., data = vdata, 'logitBoost', metric="Kappa", trControl=trainControl(method='repeatedcv',number=10, repeats=10))
 
 predictions <- predict(model$finalModel, mydata)
 
 confidences <- predict(model$finalModel, mydata, type="prob")
-confidences <- apply(confidences, 1, FUN = max)
+#confidences <- apply(confidences, 1, FUN = max)
 # Insert the new predictions into the database.
 db <- dbConnect(SQLite(), dbname="books.db")
 books_db <- dbReadTable(db, "data")
