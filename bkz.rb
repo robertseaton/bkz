@@ -123,6 +123,11 @@ def add(title, author, citations_opt, recommendations, rating, db)
                    :Amazon_Rating => amazon_data[:avg_rating],
                    :Amazon_Reviews => amazon_data[:ratings_count],
                    :Amazon_Book_Rank => amazon_data[:ranking],
+                   :Amazon5Stars => amazon_data[:stars[0]]
+                   :Amazon4Stars => amazon_data[:stars[1]]
+                   :Amazon3Stars => amazon_data[:stars[2]]
+                   :Amazon2Stars => amazon_data[:stars[3]]
+                   :Amazon1Stars => amazon_data[:stars[4]]
                    :Price => amazon_data[:price],
                    :GoogBooks_Rating => googbooks_data[:avg_rating],
                    :GoogBooks_Reviews => googbooks_data[:ratings_count],
