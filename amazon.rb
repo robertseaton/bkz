@@ -25,17 +25,29 @@ def getresult(html, n)
   :url => result_0.css(".productTitle").css("a")[0]["href"]
   }
   return result
-end		
+end
+
+def getstars(html)
+  stars = []
+
+  for n in 0..4
+    stars << html.css("div.histoCount.fl.gl10.ltgry.txtnormal")[n].text.to_i
+  end
+
+  debugger
+  return stars
+end
 
 def getratings(html, title)
 
   rank = html.text.match("[,0-9]+ in Books").to_s
   rank = rank.delete('in Books').to_s
   rank = rank.delete(',').to_i
-
+  
   ratings = {
     :avg_rating => html.text.match("[1-5][.][0-5] out of 5 stars")[0].to_f,
     :ratings_count => html.text.match("[,0-9]+ customer review")[0].delete(',').to_i,
+    :stars => getstars(html),
     :ranking => rank,
     :price => getprice(html, title)
   }
